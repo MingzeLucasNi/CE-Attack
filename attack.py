@@ -1,10 +1,6 @@
 import numpy as np
 import random
-from transformers import pipeline
-from uti import *
-# Sample models for testing
-classifier = pipeline('sentiment-analysis', model="nlptown/bert-base-multilingual-uncased-sentiment")
-nmt_model = pipeline('translation_en_to_fr')
+from uti import generate_substitution_sets, calculate_sentence_similarity, calculate_rouge_score
 
 # Define functions for soft-label, hard-label, and NMT performance measures
 
@@ -17,7 +13,7 @@ def hard_label_performance(predictions, true_class):
 
 def nmt_performance(translation, reference, bleu_score_function):
     bleu = bleu_score_function(reference, translation)
-    sem = semantic_similarity(reference, translation)  # Placeholder for semantic similarity function
+    sem = calculate_sentence_similarity(reference, translation)
     return 1 - bleu * sem
 
 # Cross-Entropy Attack implementation
@@ -28,16 +24,11 @@ class CrossEntropyAttack:
         self.num_candidates = num_candidates
         self.rho = rho
 
-    def generate_substitutions(self, word, mlm_model, thesaurus):
-        # Generate substitutions from masked language model (MLM) and thesaurus
-        masked_input = "[MASK]".join(word)
-        mlm_suggestions = mlm_model(masked_input)
-        thesaurus_suggestions = thesaurus.get(word, [])
-        return list(set(mlm_suggestions).intersection(thesaurus_suggestions))
+    def attack_text(self, text, true_label, attack_type="soft", model=None, nmt=False):
+        if model is None:
+            raise ValueError("Model must be provided for the attack.")
 
-    def attack_text(self, text, true_label, attack_type="soft", model=classifier, nmt=False):
-        words = text.split()
-        substitution_sets = [self.generate_substitutions(w, mlm_model=classifier, thesaurus={}) for w in words]
+        substitution_sets, _ = generate_substitution_sets(text, mlm_model=model)
         theta = [np.ones(len(subs)) / len(subs) for subs in substitution_sets]
         gamma = 0.5
 
@@ -52,8 +43,8 @@ class CrossEntropyAttack:
             for candidate in candidates:
                 candidate_text = " ".join(candidate)
                 if nmt:
-                    translation = nmt_model(candidate_text)[0]['translation_text']
-                    ref_translation = nmt_model(text)[0]['translation_text']
+                    translation = model(candidate_text)[0]['translation_text']
+                    ref_translation = model(text)[0]['translation_text']
                     performance = nmt_performance(translation, ref_translation, bleu_score_function=lambda ref, hyp: 0.7)
                 else:
                     predictions = model(candidate_text)
@@ -67,30 +58,9 @@ class CrossEntropyAttack:
             sorted_indices = np.argsort(performances)
             top_candidates = [candidates[i] for i in sorted_indices[int((1 - self.rho) * self.num_candidates):]]
 
-            for i in range(len(words)):
+            for i in range(len(substitution_sets)):
                 for j in range(len(substitution_sets[i])):
                     theta[i][j] = sum(1 for candidate in top_candidates if candidate[i] == substitution_sets[i][j])
                 theta[i] /= sum(theta[i])
 
-        # Select the final adversarial example
-        final_words = [subs[np.argmax(t)] for subs, t in zip(substitution_sets, theta)]
-        return " ".join(final_words)
-
-
-# Example usage
-
-# Soft-label attack on sentiment classifier
-text = "This movie was absolutely amazing, with stellar performances and a gripping plot."
-true_label = "POSITIVE"
-cea = CrossEntropyAttack()
-adversarial_example = cea.attack_text(text, true_label, attack_type="soft", model=classifier)
-print("Adversarial Example (Soft-Label):", adversarial_example)
-
-# Hard-label attack on sentiment classifier
-adversarial_example_hard = cea.attack_text(text, true_label, attack_type="hard", model=classifier)
-print("Adversarial Example (Hard-Label):", adversarial_example_hard)
-
-# NMT attack
-nmt_text = "The quick brown fox jumps over the lazy dog."
-adversarial_nmt = cea.attack_text(nmt_text, true_label=None, nmt=True)
-print("Adversarial Example (NMT):", adversarial_nmt)
+        # Select the final
