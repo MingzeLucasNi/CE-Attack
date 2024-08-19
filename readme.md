@@ -1,10 +1,9 @@
-Here is the revised `README.md` file:
+# Cross-Entropy Attacking to NLP Models via Rare-Even Simulation
+This repository contains the implementation of a Cross-Entropy Attack (CEA) on various NLP models for the paper: Cross-Entropy Attacking to NLP Models via Rare-Even Simulation for AAAI2025. The attack is designed to generate adversarial examples that can fool text classifiers and neural machine translation (NMT) models. The code is modular, allowing for easy integration with different datasets and models from the Hugging Face library.
 
----
+## Abstract
+Black-box textual adversarial attacks are challenging due to the lack of model information and the discrete, non-differentiable nature of text. Existing methods often lack versatility for attacking different models, suffer from limited attacking performance due to the inefficient optimization with word saliency ranking, and frequently sacrifice semantic integrity to achieve better attack outcomes. This paper introduces a novel approach to textual adversarial attacks, which we call Cross-Entropy Attacks (CEA), that uses Cross-Entropy optimization to address the above issues. Our CEA approach defines adversarial objectives for both soft-label and hard-label settings and employs CE optimization to identify optimal replacements. Through extensive experiments on document classification and language translation problems, we demonstrate that our attack method excels in terms of attacking performance, imperceptibility, and sentence quality.
 
-# Cross-Entropy Attack on NLP Models
-
-This repository contains the implementation of a Cross-Entropy Attack (CEA) on various NLP models. The attack is designed to generate adversarial examples that can fool text classifiers and neural machine translation (NMT) models. The code is modular, allowing for easy integration with different datasets and models from the Hugging Face library.
 
 ## Table of Contents
 
