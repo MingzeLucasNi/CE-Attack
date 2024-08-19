@@ -43,13 +43,12 @@ Black-box textual adversarial attacks are challenging due to the lack of model i
 
 ### Installation Steps
 
+
 1. **Clone the Repository**
 
-   ```bash
-   git clone https://github.com/your-username/cea-nlp-attack.git
-   cd cea-nlp-attack
-   ```
+   Download the ZIP file from the following link: [https://anonymous.4open.science/r/CE-Attack-D0DC](https://anonymous.4open.science/r/CE-Attack-D0DC)
 
+   After downloading, extract the ZIP file to your desired directory.
 2. **Install the Required Python Packages**
 
    Install the required dependencies using pip:
