@@ -78,12 +78,22 @@ This repository contains the implementation of a Cross-Entropy Attack (CEA) on v
 
 ## Usage
 
-### Running the Attack
-
-To perform a Cross-Entropy Attack on a specific dataset and model, use the `main.py` script.
+### Soft-Label Attack on SST2
 
 ```bash
-python main.py --text "Your input text here" --true_label "POSITIVE" --dataset "sst2" --model_type "classifier" --attack_type "soft"
+python main.py --text "This movie was absolutely amazing, with stellar performances and a gripping plot." --true_label "POSITIVE" --dataset "sst2" --model_type "classifier" --attack_type "soft"
+```
+
+### Hard-Label Attack on AG News
+
+```bash
+python main.py --text "The stock market crashed today, causing widespread panic." --true_label "Business" --dataset "ag_news" --model_type "classifier" --attack_type "hard"
+```
+
+### NMT Attack on WMT Task 1 (English to French)
+
+```bash
+python main.py --text "The quick brown fox jumps over the lazy dog." --true_label None --dataset "wmt1" --model_type "nmt" --attack_type "soft"
 ```
 
 ### Command-Line Arguments
